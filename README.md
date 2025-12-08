@@ -1,1 +1,17 @@
-# Video-Game-Sales---Sissejuhatus-andmeteadusess
+Coffee Shop Sales Analytics Project
+
+Author: Nikita Jakovlev
+
+Repository Link: https://github.com/DaddyIPanda/Sales---Sissejuhatus-andmeteadusess/tree/main
+
+This project is part of an Introduction to Data Science course and looks at coffee shop sales data. It aims to help managers make better decisions daily. The analysis uses public datasets from Kaggle, specifically the "Maven Roasters" and "Coffee Shop Sales" files.
+
+The goal of this work is to help coffee shop owners balance costs with customer satisfaction. Coffee shops often lose money when they have too much unsold food that must be thrown away or when they hire too many staff during slow times. At the same time, customers get unhappy if their favourite items are often out of stock or if there are long wait times due to not enough staff during busy times. Right now, many of these decisions rely on guesswork instead of data. This project aims to replace that guesswork with insights based on actual sales data.
+
+The primary business goals are to increase profitability by reducing waste and optimising labour costs, and to enhance customer satisfaction by ensuring product availability and efficient service. Success would signify a measurable reduction in food waste and enhanced customer service during peak hours for the business. I have delineated two primary objectives for data analysis to ensure effective outcomes. The first is to conduct a comprehensive exploration of the sales data, which involves delving into the numbers to identify clear patterns, determine the most popular products, ascertain which of the three shop locations experiences the highest foot traffic, and pinpoint the times of day or days of the week that attract the most customers. These insights directly help a manager know what to order and when to schedule more staff. The second goal is to build a forecasting model. This model will predict how much the coffee shop will sell each day. Having a reliable daily sales forecast is incredibly useful for planning. It informs the manager about the quantities of coffee, milk, and pastries to order for the upcoming week, providing a solid foundation for creating the staff schedule to ensure adequate staffing on predicted busy days.
+
+I will measure success in two ways. During the data exploration phase, success means providing clear answers and charts that directly address the manager's questions about sales patterns. For the forecasting model, success relies on accuracy, aiming to have the model's daily predictions within 15 per cent of actual sales, which is a useful accuracy level for planning.
+
+This repository includes the complete code and documentation for the project. The main files are a PDF report that details the business understanding, data analysis, and project planning, along with Python code for the data analysis and forecasting. The README file provides an overview and instructions.
+
+To run this analysis, you need Python on your computer, plus specific libraries: Pandas for data handling, Matplotlib and Seaborn for visualisations, and either Scikit-learn or Statsmodels/Prophet for forecasting models. The code runs as a standard Python script, not in a Jupyter notebook. It can download the datasets directly from Kaggle with the kagglehub library, so there is no separate Kaggle API setup needed. Just run the Python file to complete the analysis: downloading data, cleaning it, conducting exploratory data analysis for sales patterns, and building and evaluating the forecasting model. The code is organised and commented to help an experienced programmer understand each part and the analysis process.
