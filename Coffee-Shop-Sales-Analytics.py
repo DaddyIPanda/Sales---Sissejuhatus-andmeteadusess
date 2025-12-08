@@ -42,15 +42,15 @@ try:
     # Download two coffee shop datasets from Kaggle
     path1 = kagglehub.dataset_download("ahmedabbas757/coffee-sales")
     path2 = kagglehub.dataset_download("keremkarayaz/coffee-shop-sales")
-    print(f"✓ Dataset 1 downloaded to: {path1}")
-    print(f"✓ Dataset 2 downloaded to: {path2}")
+    print("Success: Dataset 1 downloaded to:", path1)
+    print("Success: Dataset 2 downloaded to:", path2)
     
     # Store both dataset paths for processing
     dataset_paths = [path1, path2]
     
 except Exception as e:
     # Fallback to local data if Kaggle download fails
-    print(f"Error downloading datasets: {e}")
+    print("Warning: Error downloading datasets:", e)
     print("Falling back to local data...")
     
     # Search for local data files in current directory
@@ -61,7 +61,7 @@ except Exception as e:
             local_files.append(os.path.abspath(file))
     
     if not local_files:
-        print("No local data files found. Exiting.")
+        print("Error: No local data files found. Exiting.")
         exit()
     
     dataset_paths = ['.']  # Use current directory as data source
@@ -107,7 +107,7 @@ for dataset_path in dataset_paths:
             file_types[ext] = file_types.get(ext, 0) + 1
         
         for ext, count in file_types.items():
-            print(f"  • {ext}: {count} files")
+            print(f"  - {ext}: {count} files")
         
         all_data_files.extend(files)
 
@@ -117,11 +117,11 @@ if not all_data_files:
     if local_files:
         print(f"\nFound {len(local_files)} data files in current directory:")
         for file in local_files[:10]:  # Show first 10 files
-            print(f"  • {os.path.basename(file)}")
+            print(f"  - {os.path.basename(file)}")
         all_data_files.extend(local_files)
 
 if not all_data_files:
-    print("No data files found. Exiting.")
+    print("Error: No data files found. Exiting.")
     exit()
 
 print(f"\nTotal data files found: {len(all_data_files)}")
@@ -271,7 +271,7 @@ for file_list, list_name in [(priority_files, "priority"), (other_files, "other"
         loaded_df, file_type = load_data_file(file_path)
         
         if loaded_df is not None and not loaded_df.empty:
-            print(f"    ✓ Successfully loaded as {file_type}")
+            print(f"    Success: Successfully loaded as {file_type}")
             print(f"      Shape: {loaded_df.shape}")
             print(f"      Columns: {list(loaded_df.columns)}")
             
@@ -291,37 +291,37 @@ for file_list, list_name in [(priority_files, "priority"), (other_files, "other"
             col_count = len(loaded_df.columns)
             
             print(f"      Column matches with sales keywords: {column_matches}/{col_count}")
-            print(f"      Data points: {row_count:,} rows × {col_count} columns")
+            print(f"      Data points: {row_count:,} rows x {col_count} columns")
             
             # Decision criteria: if it has sales keywords OR has significant data
             if column_matches >= 2 or (row_count > 100 and col_count >= 3):
                 df = loaded_df
                 loaded_file = file_path
                 loaded_type = file_type
-                print(f"    ✓ This looks like sales data! Using this file.")
+                print(f"    Success: This looks like sales data! Using this file.")
                 break
             else:
-                print(f"    ✗ Doesn't look like sales data, trying next...")
+                print(f"    Note: Doesn't look like sales data, trying next...")
         else:
-            print(f"    ✗ Could not load file")
+            print(f"    Error: Could not load file")
 
 # Last resort: load any available file if none matched criteria
 if df is None and all_data_files:
-    print("\nNo file matched sales criteria. Loading first available file...")
+    print("\nNote: No file matched sales criteria. Loading first available file...")
     for file_path in all_data_files:
         loaded_df, file_type = load_data_file(file_path)
         if loaded_df is not None and not loaded_df.empty:
             df = loaded_df
             loaded_file = file_path
             loaded_type = file_type
-            print(f"✓ Loaded first available file: {os.path.basename(loaded_file)}")
+            print(f"Success: Loaded first available file: {os.path.basename(loaded_file)}")
             break
 
 if df is None:
-    print("Could not load any data files. Exiting.")
+    print("Error: Could not load any data files. Exiting.")
     exit()
 
-print(f"\n✓ SUCCESS: Data loaded from {loaded_type} file: {os.path.basename(loaded_file)}")
+print(f"\nSUCCESS: Data loaded from {loaded_type} file: {os.path.basename(loaded_file)}")
 print(f"  Shape: {df.shape}")
 print(f"  Memory usage: {df.memory_usage(deep=True).sum() / 1024**2:.2f} MB")
 
@@ -433,18 +433,18 @@ if date_cols:
             df.loc[valid_dates, 'month'] = df.loc[valid_dates, 'transaction_datetime'].dt.month_name()
             df.loc[valid_dates, 'is_weekend'] = df.loc[valid_dates, 'transaction_datetime'].dt.dayofweek >= 5
             
-            print(f"  ✓ Date conversion successful")
+            print(f"  Success: Date conversion successful")
             print(f"    Valid dates: {valid_dates.sum():,} of {len(df):,}")
             print(f"    Date range: {df['transaction_datetime'].min()} to {df['transaction_datetime'].max()}")
         else:
-            print(f"  ✗ No valid dates found in column")
+            print(f"  Warning: No valid dates found in column")
             df['transaction_datetime'] = None
             
     except Exception as e:
-        print(f"  ✗ Error processing dates: {e}")
+        print(f"  Error: Error processing dates: {e}")
         df['transaction_datetime'] = None
 else:
-    print("\nNo date columns identified. Time-based analysis will be limited.")
+    print("\nNote: No date columns identified. Time-based analysis will be limited.")
     df['transaction_datetime'] = None
 
 # Calculate total sales for each transaction
@@ -455,7 +455,7 @@ if price_cols and qty_cols:
     price_col = price_cols[0]
     qty_col = qty_cols[0]
     
-    print(f"\nAttempting to calculate total sales from: {price_col} × {qty_col}")
+    print(f"\nAttempting to calculate total sales from: {price_col} x {qty_col}")
     
     # Convert to numeric for calculation
     df[price_col] = pd.to_numeric(df[price_col], errors='coerce')
@@ -468,11 +468,11 @@ if price_cols and qty_cols:
     if price_valid.any() and qty_valid.any():
         df['total_sales'] = df[price_col] * df[qty_col]
         total_sales_calculated = True
-        print(f"  ✓ Total sales calculated successfully")
+        print(f"  Success: Total sales calculated successfully")
         print(f"    Valid calculations: {(df['total_sales'].notna()).sum():,} of {len(df):,}")
         print(f"    Total revenue: ${df['total_sales'].sum():,.2f}")
     else:
-        print(f"  ✗ Not enough valid numeric data in price or quantity columns")
+        print(f"  Warning: Not enough valid numeric data in price or quantity columns")
 
 # Method 2: If we only have price column, use it as total sales
 elif price_cols:
@@ -484,10 +484,10 @@ elif price_cols:
     if df[price_col].notna().any():
         df['total_sales'] = df[price_col]
         total_sales_calculated = True
-        print(f"  ✓ Using price column as sales amount")
+        print(f"  Success: Using price column as sales amount")
         print(f"    Total revenue: ${df['total_sales'].sum():,.2f}")
     else:
-        print(f"  ✗ Price column doesn't contain valid numeric data")
+        print(f"  Warning: Price column doesn't contain valid numeric data")
 
 # Method 3: Search for any numeric column that could be sales
 if not total_sales_calculated:
@@ -516,11 +516,11 @@ if not total_sales_calculated:
         
         df['total_sales'] = df[best_col]
         total_sales_calculated = True
-        print(f"  ✓ Using {best_col} as total sales (best guess)")
+        print(f"  Success: Using {best_col} as total sales (best guess)")
         print(f"    Mean value: ${df[best_col].mean():.2f}")
         print(f"    Total: ${df[best_col].sum():,.2f}")
     else:
-        print("  ✗ Could not identify sales data")
+        print("  Warning: Could not identify sales data")
         df['total_sales'] = 0
 
 # ============================================================================
@@ -530,7 +530,7 @@ print("\n5. EXPLORATORY DATA ANALYSIS")
 print("-" * 50)
 
 # Basic statistics about the dataset
-print(f"\n📊 DATASET OVERVIEW")
+print(f"\nDATASET OVERVIEW")
 print(f"   Total records: {len(df):,}")
 
 if total_sales_calculated and df['total_sales'].sum() > 0:
@@ -547,7 +547,7 @@ if total_sales_calculated and df['total_sales'].sum() > 0:
     # Analyze transaction value distribution
     print(f"\n   Transaction value distribution:")
     bins = [0, 5, 10, 15, 20, 30, 50, 100, float('inf')]
-    labels = ['<$5', '$5-10', '$10-15', '$15-20', '$20-30', '$30-50', '$50-100', '>$100']
+    labels = ['Under $5', '$5-10', '$10-15', '$15-20', '$20-30', '$30-50', '$50-100', 'Over $100']
     
     df['price_bin'] = pd.cut(df['total_sales'], bins=bins, labels=labels, right=False)
     bin_counts = df['price_bin'].value_counts().sort_index()
@@ -559,7 +559,7 @@ if total_sales_calculated and df['total_sales'].sum() > 0:
 
 # Analyze sales by day of week
 if 'day_of_week' in df.columns and df['day_of_week'].notna().any():
-    print(f"\n📅 DAY OF WEEK ANALYSIS")
+    print(f"\nDAY OF WEEK ANALYSIS")
     
     day_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     
@@ -591,7 +591,7 @@ if 'day_of_week' in df.columns and df['day_of_week'].notna().any():
                 avg = day_stats.loc[day, 'avg_sale']
                 pct_tx = (transactions / len(df)) * 100
                 pct_rev = (revenue / df['total_sales'].sum()) * 100 if df['total_sales'].sum() > 0 else 0
-                print(f"   {day[:3]}: {transactions:,} tx ({pct_tx:.1f}%), ${revenue:,.0f} ({pct_rev:.1f}%), avg ${avg:.2f}")
+                print(f"   {day[:3]}: {transactions:,} transactions ({pct_tx:.1f}%), ${revenue:,.0f} revenue ({pct_rev:.1f}%), average ${avg:.2f}")
             else:
                 pct = (transactions / len(df)) * 100
                 print(f"   {day[:3]}: {transactions:,} transactions ({pct:.1f}%)")
@@ -605,13 +605,13 @@ if 'day_of_week' in df.columns and df['day_of_week'].notna().any():
             weekend_revenue = df.loc[weekend_mask, 'total_sales'].sum()
             total_revenue = df['total_sales'].sum()
             weekend_rev_pct = (weekend_revenue / total_revenue * 100) if total_revenue > 0 else 0
-            print(f"\n   Weekend (Sat-Sun): {weekend_pct:.1f}% of transactions, {weekend_rev_pct:.1f}% of revenue")
+            print(f"\n   Weekend (Saturday-Sunday): {weekend_pct:.1f}% of transactions, {weekend_rev_pct:.1f}% of revenue")
         else:
-            print(f"\n   Weekend (Sat-Sun): {weekend_pct:.1f}% of transactions")
+            print(f"\n   Weekend (Saturday-Sunday): {weekend_pct:.1f}% of transactions")
 
 # Analyze sales by hour of day
 if 'hour' in df.columns and df['hour'].notna().any():
-    print(f"\n⏰ HOURLY ANALYSIS")
+    print(f"\nHOURLY ANALYSIS")
     
     # Group transactions by hour
     hourly_stats = df.groupby('hour').size()
@@ -659,7 +659,7 @@ if 'hour' in df.columns and df['hour'].notna().any():
 # Analyze store performance
 if store_cols:
     store_col = store_cols[0]
-    print(f"\n🏪 STORE ANALYSIS")
+    print(f"\nSTORE ANALYSIS")
     print(f"   Column used: {store_col}")
     
     store_values = df[store_col].value_counts()
@@ -680,7 +680,7 @@ if store_cols:
             print(f"     {i}. {store}")
             print(f"        Revenue: ${row['total_revenue']:,.0f} ({revenue_pct:.1f}%)")
             print(f"        Transactions: {row['transactions']:,} ({tx_pct:.1f}%)")
-            print(f"        Avg sale: ${row['avg_sale']:.2f}")
+            print(f"        Average sale: ${row['avg_sale']:.2f}")
     else:
         store_counts = df[store_col].value_counts()
         print("\n   Top 3 stores by transactions:")
@@ -691,7 +691,7 @@ if store_cols:
 # Analyze product performance
 if product_cols:
     product_col = product_cols[0]
-    print(f"\n☕ PRODUCT ANALYSIS")
+    print(f"\nPRODUCT ANALYSIS")
     print(f"   Column used: {product_col}")
     
     product_counts = df[product_col].value_counts()
@@ -716,7 +716,7 @@ if product_cols:
             print(f"     {i}. {product}")
             print(f"        Revenue: ${row['total_revenue']:,.0f} ({revenue_pct:.1f}%)")
             print(f"        Transactions: {row['transactions']:,}")
-            print(f"        Avg price: ${row['avg_price']:.2f}")
+            print(f"        Average price: ${row['avg_price']:.2f}")
     
     # Analyze product diversity
     print(f"\n   Product diversity:")
@@ -752,7 +752,7 @@ print(f"  Detail columns: {detail_cols if detail_cols else 'None'}")
 # Analyze product categories if available
 if category_cols:
     category_col = category_cols[0]
-    print(f"\n📊 PRODUCT CATEGORY ANALYSIS ({category_col})")
+    print(f"\nPRODUCT CATEGORY ANALYSIS ({category_col})")
     print("-" * 40)
     
     category_stats = df.groupby(category_col).agg({
@@ -770,7 +770,7 @@ if category_cols:
             print(f"  {i}. {category}")
             print(f"     Revenue: ${row['total_revenue']:,.0f} ({revenue_pct:.1f}%)")
             print(f"     Transactions: {row['transactions']:,} ({tx_pct:.1f}%)")
-            print(f"     Avg Price: ${row['avg_price']:.2f}")
+            print(f"     Average Price: ${row['avg_price']:.2f}")
     else:
         category_stats.columns = ['transactions']
         category_stats = category_stats.sort_values('transactions', ascending=False)
@@ -783,7 +783,7 @@ if category_cols:
 # Analyze product types if available
 if type_cols:
     type_col = type_cols[0]
-    print(f"\n📊 PRODUCT TYPE ANALYSIS ({type_col})")
+    print(f"\nPRODUCT TYPE ANALYSIS ({type_col})")
     print("-" * 40)
     
     type_stats = df.groupby(type_col).agg({
@@ -801,7 +801,7 @@ if type_cols:
             print(f"  {i}. {product_type}")
             print(f"     Revenue: ${row['total_revenue']:,.0f} ({revenue_pct:.1f}%)")
             print(f"     Transactions: {row['transactions']:,} ({tx_pct:.1f}%)")
-            print(f"     Avg Price: ${row['avg_price']:.2f}")
+            print(f"     Average Price: ${row['avg_price']:.2f}")
     else:
         type_stats.columns = ['transactions']
         type_stats = type_stats.sort_values('transactions', ascending=False)
@@ -814,7 +814,7 @@ if type_cols:
 # Analyze product details if available
 if detail_cols:
     detail_col = detail_cols[0]
-    print(f"\n📊 PRODUCT DETAIL ANALYSIS ({detail_col})")
+    print(f"\nPRODUCT DETAIL ANALYSIS ({detail_col})")
     print("-" * 40)
     
     detail_stats = df.groupby(detail_col).agg({
@@ -832,7 +832,7 @@ if detail_cols:
             print(f"  {i}. {detail}")
             print(f"     Revenue: ${row['total_revenue']:,.0f} ({revenue_pct:.1f}%)")
             print(f"     Transactions: {row['transactions']:,} ({tx_pct:.1f}%)")
-            print(f"     Avg Price: ${row['avg_price']:.2f}")
+            print(f"     Average Price: ${row['avg_price']:.2f}")
     else:
         detail_stats.columns = ['transactions']
         detail_stats = detail_stats.sort_values('transactions', ascending=False)
@@ -922,11 +922,11 @@ if category_cols:
         plt.tight_layout()
         plt.savefig('product_categories.png', dpi=300, bbox_inches='tight', facecolor='white')
         plt.show()
-        print("✓ Saved: product_categories.png")
+        print("Success: Saved product_categories.png")
     else:
-        print("✗ No category data available")
+        print("Note: No category data available")
 else:
-    print("✗ Category data not available")
+    print("Note: Category data not available")
 
 # Visualization 2: Product Type Analysis
 print("\nCreating Visualization 2: Product Type Analysis...")
@@ -1002,11 +1002,11 @@ if type_cols:
         plt.tight_layout()
         plt.savefig('product_types.png', dpi=300, bbox_inches='tight', facecolor='white')
         plt.show()
-        print("✓ Saved: product_types.png")
+        print("Success: Saved product_types.png")
     else:
-        print("✗ No type data available")
+        print("Note: No type data available")
 else:
-    print("✗ Type data not available")
+    print("Note: Type data not available")
 
 # Visualization 3: Product Detail Analysis
 print("\nCreating Visualization 3: Product Detail Analysis...")
@@ -1053,11 +1053,11 @@ if detail_cols:
         plt.tight_layout()
         plt.savefig('product_details.png', dpi=300, bbox_inches='tight', facecolor='white')
         plt.show()
-        print("✓ Saved: product_details.png")
+        print("Success: Saved product_details.png")
     else:
-        print("✗ No detail data available")
+        print("Note: No detail data available")
 else:
-    print("✗ Detail data not available")
+    print("Note: Detail data not available")
 
 # Visualization 4: Product Hierarchy Analysis (if we have multiple levels)
 print("\nCreating Visualization 4: Product Hierarchy Analysis...")
@@ -1129,13 +1129,13 @@ if category_cols and type_cols:
         plt.tight_layout()
         plt.savefig('product_hierarchy.png', dpi=300, bbox_inches='tight', facecolor='white')
         plt.show()
-        print("✓ Saved: product_hierarchy.png")
+        print("Success: Saved product_hierarchy.png")
     else:
-        print("✗ No cross-tabulation data available")
+        print("Note: No cross-tabulation data available")
 elif category_cols or type_cols:
-    print("✗ Need both category and type columns for hierarchy analysis")
+    print("Note: Need both category and type columns for hierarchy analysis")
 else:
-    print("✗ Category and type data not available for hierarchy analysis")
+    print("Note: Category and type data not available for hierarchy analysis")
 
 # ============================================================================
 # SECTION 8: DAILY SPENDING ANALYSIS & VISUALIZATION
@@ -1192,7 +1192,7 @@ if date_col and tx_col:
             if len(daily_spending) >= 7:
                 daily_spending['7_day_avg'] = daily_spending['total_daily_spend'].rolling(window=7, min_periods=1).mean()
                 ax11a.plot(daily_spending['date'], daily_spending['7_day_avg'], 
-                         linewidth=3, color='red', alpha=0.8, label='7-Day Moving Avg')
+                         linewidth=3, color='red', alpha=0.8, label='7-Day Moving Average')
                 ax11a.legend()
             
             ax11a.set_title('Daily Customer Spending Over Time', fontweight='bold', fontsize=16)
@@ -1226,7 +1226,7 @@ if date_col and tx_col:
                 # Second y-axis for average spend per transaction
                 ax11b2 = ax11b.twinx()
                 ax11b2.plot(daily_spending['date'], daily_spending['avg_spend_per_tx'], 
-                          color='orange', linewidth=2, marker='s', markersize=4, label='Avg Spend/Tx')
+                          color='orange', linewidth=2, marker='s', markersize=4, label='Average Spend per Transaction')
                 
                 ax11b.set_title('Daily Transactions and Average Spend', fontweight='bold', fontsize=16)
                 ax11b.set_xlabel('Date', fontsize=12)
@@ -1247,32 +1247,32 @@ if date_col and tx_col:
             plt.tight_layout()
             plt.savefig('daily_spending_analysis.png', dpi=300, bbox_inches='tight', facecolor='white')
             plt.show()
-            print("✓ Saved: daily_spending_analysis.png")
+            print("Success: Saved daily_spending_analysis.png")
             
             # Print summary statistics
-            print(f"\n📊 DAILY SPENDING SUMMARY:")
-            print(f"   • Total days analyzed: {len(daily_spending):,}")
-            print(f"   • Average daily spend: ${daily_spending['total_daily_spend'].mean():,.2f}")
-            print(f"   • Median daily spend: ${daily_spending['total_daily_spend'].median():,.2f}")
-            print(f"   • Highest daily spend: ${daily_spending['total_daily_spend'].max():,.2f}")
-            print(f"   • Lowest daily spend: ${daily_spending['total_daily_spend'].min():,.2f}")
-            print(f"   • Total revenue period: ${daily_spending['total_daily_spend'].sum():,.2f}")
+            print(f"\nDAILY SPENDING SUMMARY:")
+            print(f"   Total days analyzed: {len(daily_spending):,}")
+            print(f"   Average daily spend: ${daily_spending['total_daily_spend'].mean():,.2f}")
+            print(f"   Median daily spend: ${daily_spending['total_daily_spend'].median():,.2f}")
+            print(f"   Highest daily spend: ${daily_spending['total_daily_spend'].max():,.2f}")
+            print(f"   Lowest daily spend: ${daily_spending['total_daily_spend'].min():,.2f}")
+            print(f"   Total revenue period: ${daily_spending['total_daily_spend'].sum():,.2f}")
             
             # Save daily spending data to CSV for further analysis
             daily_spending.to_csv('daily_spending_data.csv', index=False)
-            print("✓ Saved: daily_spending_data.csv")
+            print("Success: Saved daily_spending_data.csv")
             
         else:
-            print("✗ Date column found but no valid dates in data")
+            print("Note: Date column found but no valid dates in data")
             
     except Exception as e:
-        print(f"✗ Error creating daily spending graph: {e}")
+        print(f"Error: Error creating daily spending graph: {e}")
         print(f"   Error details: {str(e)}")
 else:
     if not date_col:
-        print("✗ No date column found for daily analysis")
+        print("Note: No date column found for daily analysis")
     if not tx_col:
-        print("✗ No transaction value column found for daily analysis")
+        print("Note: No transaction value column found for daily analysis")
 
 # Clean up temporary columns created for analysis
 if '_date_temp' in df.columns:
@@ -1345,12 +1345,12 @@ if detail_cols:
 
 # Print all generated product insights
 if product_insights:
-    print("\n🔍 PRODUCT INSIGHTS:")
+    print("\nPRODUCT INSIGHTS:")
     print("-" * 40)
     for i, insight in enumerate(product_insights, 1):
         print(f"{i}. {insight}")
 else:
-    print("\n✗ No specific product insights could be generated")
+    print("\nNote: No specific product insights could be generated")
 
 # ============================================================================
 # SECTION 10: PRODUCT-BASED RECOMMENDATIONS
@@ -1395,7 +1395,7 @@ if detail_cols and total_sales_calculated:
         if premium_products:
             premium_names = [str(p)[:15] + '...' if len(str(p)) > 15 else str(p) for p in premium_products]
             avg_premium = product_prices.head(3).mean()
-            product_recommendations.append(f"Highlight premium products: {', '.join(premium_names)} (avg: ${avg_premium:.2f})")
+            product_recommendations.append(f"Highlight premium products: {', '.join(premium_names)} (average price: ${avg_premium:.2f})")
 
 # Product bundling recommendations
 if category_cols and type_cols:
@@ -1417,12 +1417,12 @@ if category_cols and type_cols:
 
 # Print all product recommendations
 if product_recommendations:
-    print("\n🎯 PRODUCT RECOMMENDATIONS:")
+    print("\nPRODUCT RECOMMENDATIONS:")
     print("-" * 40)
     for i, rec in enumerate(product_recommendations, 1):
         print(f"{i}. {rec}")
 else:
-    print("\n✗ No specific product recommendations without sufficient data")
+    print("\nNote: No specific product recommendations without sufficient data")
 
 # ============================================================================
 # SECTION 11: VISUALIZATION SUMMARY
@@ -1431,17 +1431,11 @@ print("\n" + "=" * 70)
 print("VISUALIZATION SUMMARY")
 print("=" * 70)
 print("Created the following visualizations:")
-print(" 1. Daily Sales Trend (daily_sales_trend.png)")
-print(" 2. Hourly Transactions (hourly_transactions.png)")
-print(" 3. Store Performance (store_performance.png)")
-print(" 4. Product Distribution (product_distribution.png)")
-print(" 5. Day of Week Analysis (day_of_week_analysis.png)")
-print(" 6. Transaction Value Distribution (transaction_value_distribution.png)")
-print(" 7. Product Categories (product_categories.png)")
-print(" 8. Product Types (product_types.png)")
-print(" 9. Product Details (product_details.png)")
-print("10. Product Hierarchy (product_hierarchy.png)")
-print("11. Daily Spending Analysis (daily_spending_analysis.png)")
+print(" 1. Product Categories (product_categories.png)")
+print(" 2. Product Types (product_types.png)")
+print(" 3. Product Details (product_details.png)")
+print(" 4. Product Hierarchy (product_hierarchy.png)")
+print(" 5. Daily Spending Analysis (daily_spending_analysis.png)")
 
 # ============================================================================
 # SECTION 12: KEY INSIGHTS AND BUSINESS RECOMMENDATIONS
@@ -1449,7 +1443,7 @@ print("11. Daily Spending Analysis (daily_spending_analysis.png)")
 print("\n12. KEY BUSINESS INSIGHTS AND RECOMMENDATIONS")
 print("-" * 50)
 
-print("\n📈 KEY INSIGHTS BASED ON DATA ANALYSIS:")
+print("\nKEY INSIGHTS BASED ON DATA ANALYSIS:")
 print("-" * 40)
 
 insights = []
@@ -1519,9 +1513,9 @@ if insights:
     for i, insight in enumerate(insights, 1):
         print(f"{i}. {insight}")
 else:
-    print("No specific insights could be generated from available data.")
+    print("Note: No specific insights could be generated from available data.")
 
-print("\n🎯 DATA-DRIVEN BUSINESS RECOMMENDATIONS:")
+print("\nDATA-DRIVEN BUSINESS RECOMMENDATIONS:")
 print("-" * 40)
 
 recommendations = []
@@ -1579,7 +1573,7 @@ if store_cols and len(df[store_cols[0]].unique()) > 1:
             avg_all = df['total_sales'].mean()
             
             if lowest_avg < avg_all * 0.8:  # 20% below average
-                recommendations.append(f"Review pricing and upselling at '{lowest_avg_store}' (avg: ${lowest_avg:.2f} vs overall: ${avg_all:.2f})")
+                recommendations.append(f"Review pricing and upselling at '{lowest_avg_store}' (average: ${lowest_avg:.2f} vs overall average: ${avg_all:.2f})")
 
 # Product strategy optimization
 if product_cols and total_sales_calculated:
@@ -1608,7 +1602,7 @@ if recommendations:
     for i, rec in enumerate(recommendations, 1):
         print(f"{i}. {rec}")
 else:
-    print("No specific recommendations without sufficient data.")
+    print("Note: No specific recommendations without sufficient data.")
 
 # ============================================================================
 # SECTION 13: EXECUTIVE SUMMARY
@@ -1617,19 +1611,19 @@ print("\n" + "=" * 70)
 print("ANALYSIS COMPLETE - EXECUTIVE SUMMARY")
 print("=" * 70)
 
-print(f"\n📊 EXECUTIVE SUMMARY:")
-print(f"• Data source: {os.path.basename(loaded_file)} ({loaded_type})")
-print(f"• Records analyzed: {len(df):,}")
+print(f"\nEXECUTIVE SUMMARY:")
+print(f"Data source: {os.path.basename(loaded_file)} ({loaded_type})")
+print(f"Records analyzed: {len(df):,}")
 if total_sales_calculated and df['total_sales'].sum() > 0:
-    print(f"• Total revenue: ${df['total_sales'].sum():,.2f}")
-    print(f"• Average transaction: ${df['total_sales'].mean():.2f}")
+    print(f"Total revenue: ${df['total_sales'].sum():,.2f}")
+    print(f"Average transaction: ${df['total_sales'].mean():.2f}")
 
-print(f"\n📈 KEY OUTPUTS:")
-print(f"• Multiple visualization files (.png)")
-print(f"• CSV data exports for further analysis")
-print(f"• Data-driven insights and recommendations")
+print(f"\nKEY OUTPUTS:")
+print(f"Multiple visualization files (.png)")
+print(f"CSV data exports for further analysis")
+print(f"Data-driven insights and recommendations")
 
-print(f"\n📝 METHODOLOGY:")
+print(f"\nMETHODOLOGY:")
 print(f"1. Automated data download from Kaggle datasets")
 print(f"2. Intelligent file format detection and loading")
 print(f"3. Automatic column identification and data cleaning")
@@ -1637,17 +1631,17 @@ print(f"4. Comprehensive exploratory data analysis")
 print(f"5. Pattern extraction and business insight generation")
 print(f"6. Visualization creation and recommendation formulation")
 
-print(f"\n⚠️  LIMITATIONS AND ASSUMPTIONS:")
-print(f"• Analysis limited to available columns in the dataset")
-print(f"• Results depend on data quality and completeness")
-print(f"• No assumptions beyond what the data explicitly contains")
-print(f"• Automatic column detection may not be 100% accurate")
+print(f"\nLIMITATIONS AND ASSUMPTIONS:")
+print(f"Analysis limited to available columns in the dataset")
+print(f"Results depend on data quality and completeness")
+print(f"No assumptions beyond what the data explicitly contains")
+print(f"Automatic column detection may not be 100% accurate")
 
-print(f"\n✅ NEXT STEPS:")
-print(f"• Review generated visualizations in the current directory")
-print(f"• Examine exported CSV files for detailed data")
-print(f"• Implement recommendations based on data insights")
-print(f"• Consider additional analysis with more specific business questions")
+print(f"\nNEXT STEPS:")
+print(f"Review generated visualizations in the current directory")
+print(f"Examine exported CSV files for detailed data")
+print(f"Implement recommendations based on data insights")
+print(f"Consider additional analysis with more specific business questions")
 
 print("\n" + "=" * 70)
 print("END OF ANALYSIS REPORT")
